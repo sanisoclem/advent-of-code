@@ -5,10 +5,13 @@ module Day1
 
 import Prelude
 
-import Data.String.Utils (toCharArray, lines)
-import Data.Maybe (fromJust)
+import Data.Foldable (oneOf)
+import Data.String.Utils (toCharArray, lines, startsWith)
+import Data.Maybe (fromJust, fromMaybe, Maybe(Just))
 import Data.Int (fromString,decimal, toStringAs)
-import Data.Array (mapMaybe, head, last, foldl)
+import Data.Array (mapMaybe, head, last, foldl, filter)
+import Data.Array as Array
+import Data.String (take, drop)
 
 import Effect (Effect)
 import Effect.Console (logShow)
@@ -18,10 +21,35 @@ import Partial.Unsafe (unsafePartial)
 solution :: Partial => String
 solution = numToString $ foldl (+) 0 calibrationValues
   where
-    calibrationValues = findCalibrationValue <$> mapMaybe fromString <$> toCharArray <$> lines input
+    calibrationValues = findCalibrationValue <$> getDigitsObnoxious [] <$> lines input
     findCalibrationValue vs = concatInt (fromJust (head vs)) (fromJust (last vs))
     concatInt x y = fromJust $ fromString $ numToString x <> numToString y
     numToString = toStringAs decimal
+    getDigits = toCharArray >>> mapMaybe fromString
+
+getDigitsObnoxious :: Array Int -> String -> Array Int
+getDigitsObnoxious acc s =
+  if s == ""
+  then acc
+  else getDigitsObnoxious newAcc (drop 1 s)
+  where
+    newAcc = case maybeDigit s of
+      Just x -> acc <> [x]
+      _ -> acc
+    maybeDigit x = oneOf [wordDigit x, normalDigit x]
+    normalDigit x = fromString $ take 1 x
+    wordDigit x = _.value <$> (head <<< filter (\d -> startsWith d.key x) $ digitMap)
+    digitMap =
+      [ { key: "one", value: 1 }
+      , { key: "two", value: 2}
+      , { key: "three", value: 3 }
+      , { key: "four", value: 4 }
+      , { key: "five", value: 5 }
+      , { key: "six", value: 6}
+      , { key: "seven", value: 7 }
+      , { key: "eight", value: 8 }
+      , { key: "nine", value: 9}
+      ]
 
 main :: Effect Unit
 main = logShow $ unsafePartial solution

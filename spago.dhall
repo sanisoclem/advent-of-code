@@ -15,11 +15,13 @@ to generate this file without the comments in this block.
   [ "console"
   , "effect"
   , "prelude"
+  , "foldable-traversable"
   , "stringutils"
   , "maybe"
   , "integers"
   , "arrays"
   , "partial"
+  , "strings"
   ]
 , packages = ./packages.dhall
 , sources = [ "2023/**/*.purs" ]
